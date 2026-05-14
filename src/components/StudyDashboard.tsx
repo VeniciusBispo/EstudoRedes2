@@ -198,14 +198,6 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
           )}
 
 
-          {activeTab === 'mindmap' && (
-            <div className="premium-card" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ textAlign: 'center' }}>
-                <MapIcon size={48} style={{ marginBottom: '16px' }} />
-                <p>Visualização de Mapa Mental em construção...</p>
-              </div>
-            </div>
-          )}
         </motion.div>
       </AnimatePresence>
     </div>
