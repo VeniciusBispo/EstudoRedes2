@@ -1,48 +1,46 @@
-import type { StudyMaterial, Question, Flashcard } from '../types';
+import axios from 'axios';
+import type { StudyMaterial } from '../types';
 
-// In a real app, you would use the Gemini API here.
-// For this demo, we'll simulate the AI processing.
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
-export const processContent = async (content: string, title: string): Promise<StudyMaterial> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  const topics = ['Introdução', 'Conceitos Chave', 'Aplicações Práticas', 'Conclusão'];
-  
-  const questions: Question[] = [
+export const processContent = async (text: string, apiKey: string): Promise<Partial<StudyMaterial>> => {
+  const prompt = `
+    Analise o seguinte conteúdo educacional e gere um material de estudo completo em formato JSON.
+    O JSON deve seguir exatamente esta estrutura:
     {
-      id: '1',
-      type: 'multiple',
-      question: 'Qual o principal objetivo do material analisado?',
-      options: ['Opção A', 'Opção B', 'Opção C', 'Opção D'],
-      correctAnswer: 'Opção A',
-      explanation: 'A explicação baseada no contexto do material...',
-      difficulty: 'intermediate'
-    },
-    {
-      id: '2',
-      type: 'multiple',
-      question: 'Como a tecnologia descrita impacta o setor educacional?',
-      options: ['Aumento de eficiência', 'Redução de custos', 'Personalização do ensino', 'Todas as anteriores'],
-      correctAnswer: 'Todas as anteriores',
-      explanation: 'A IA permite uma escala sem precedentes na personalização...',
-      difficulty: 'advanced'
+      "title": "Título sugerido",
+      "summary": "Resumo detalhado em markdown",
+      "topics": ["Tópico 1", "Tópico 2"],
+      "questions": [
+        {
+          "question": "Pergunta",
+          "options": ["Opção A", "Opção B", "Opção C", "Opção D"],
+          "correctAnswer": "Opção A",
+          "explanation": "Explicação detalhada",
+          "difficulty": "Médio",
+          "type": "Múltipla Escolha"
+        }
+      ],
+      "flashcards": [
+        { "front": "Frente", "back": "Verso" }
+      ]
     }
-  ];
+    
+    Conteúdo: ${text.substring(0, 5000)}
+  `;
 
-  const flashcards: Flashcard[] = [
-    { id: 'f1', front: 'O que é RAG?', back: 'Retrieval Augmented Generation', difficulty: 'technical' },
-    { id: 'f2', front: 'Benefício da repetição espaçada', back: 'Melhora a retenção de longo prazo', difficulty: 'academic' }
-  ];
+  try {
+    const response = await axios.post(`${GEMINI_API_URL}?key=${apiKey}`, {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
+    });
 
-  return {
-    id: Math.random().toString(36).substr(2, 9),
-    title: title || 'Novo Estudo',
-    content,
-    summary: 'Este material aborda os fundamentos de ' + title + ', explorando as principais métricas e metodologias para otimização de processos. A análise destaca a importância da integração de sistemas inteligentes para a escalabilidade de soluções educacionais modernas.',
-    topics,
-    questions,
-    flashcards,
-    createdAt: Date.now()
-  };
+    const resultText = response.data.candidates[0].content.parts[0].text;
+    return JSON.parse(resultText);
+  } catch (error) {
+    console.error('Error processing AI content:', error);
+    throw new Error('Falha ao processar conteúdo com IA');
+  }
 };

@@ -1,41 +1,64 @@
-# EduAI Pro - Sistema Universal de Geração de Questões com IA
+# EduAI Pro - Enterprise Educational Platform
 
-EduAI Pro é um ecossistema educacional avançado que utiliza Inteligência Artificial para transformar qualquer tipo de material (PDF, Imagens, Texto, Links) em uma experiência completa de aprendizado.
+EduAI Pro é uma plataforma de estudos universal de próxima geração, projetada para transformar qualquer material educacional (PDF, DOCX, Imagens) em um ecossistema de aprendizado interativo com IA.
 
-## 🚀 Funcionalidades Principais
+## 🚀 Arquitetura Enterprise
 
-- **Upload Multiformato**: Suporte para PDF, DOCX, Imagens (OCR), Texto manual e Links.
-- **Geração Inteligente**: Cria automaticamente resumos, flashcards, questões de múltipla escolha e discursivas.
-- **Personalização Total**: Escolha dificuldade (Básico ao Acadêmico), idioma e estilo de questões (ENEM, Vestibular, Técnico).
-- **Modo "Estude Este Material"**: Um fluxo automatizado que prepara um plano de estudo completo a partir de um arquivo.
-- **Interface Premium**: Design moderno inspirado em Notion e Quizlet, com animações fluidas e modo escuro.
-- **Persistência Local**: Seus materiais e progresso são salvos localmente usando IndexedDB.
+O projeto foi totalmente refatorado de um HTML monolítico para uma arquitetura moderna e escalável:
 
-## 🛠️ Stack Tecnológica
-
-- **Frontend**: React + TypeScript + Vite
-- **Estilização**: Vanilla CSS (Premium Design System)
+- **Frontend**: React 19 + TypeScript + Vite
+- **Estilização**: Tailwind CSS 4 + Shadcn/UI + Glassmorphism
+- **Estado**: Zustand (Persistente) + React Query
 - **Animações**: Framer Motion
-- **Processamento de Documentos**: 
-  - PDF.js (PDF)
-  - Mammoth.js (DOCX)
-  - Tesseract.js (OCR de Imagens)
-- **IA**: Gemini API (Simulado na versão atual)
-- **Banco de Dados**: IndexedDB (via `idb`)
+- **Visualização**: Chart.js (Laboratório de RF)
+- **IA**: Integração modular com Google Gemini 1.5 Pro/Flash
+- **Documentos**: PDF.js, Mammoth.js, Tesseract.js (OCR)
 
-## 📂 Estrutura do Projeto
+## 📂 Estrutura de Pastas
 
-- `src/components/`: Componentes modulares de UI.
-- `src/services/`: Lógica de IA, Parsing de arquivos e Banco de Dados.
-- `src/types.ts`: Definições de tipos do sistema.
-- `src/index.css`: Design system global.
+```bash
+src/
+├── components/ # Componentes atômicos e complexos
+├── modules/    # Lógica de domínio (Sinais, IA, Quiz)
+├── pages/      # Páginas da aplicação
+├── stores/     # Gerenciamento de estado (Zustand)
+├── services/   # Integrações externas (API, DB)
+└── types/      # Definições TypeScript globais
+```
 
-## 📝 Como Usar
+## ✨ Funcionalidades Principais
 
-1. Arraste um arquivo para a área de upload ou cole um texto.
-2. Aguarde a IA processar o conteúdo.
-3. Navegue entre as abas de Resumo, Questões e Flashcards.
-4. Pratique com as questões geradas e revise com os flashcards animados.
+1. **Laboratório de Sinais RF**: Osciloscópio virtual em tempo real com suporte a AM/FM e ruído.
+2. **Dashboard Gamificado**: XP, Níveis, Sequência (Streak) e Radar de Habilidades.
+3. **Processamento Universal**: Suporte a múltiplos formatos de arquivo com extração via IA.
+4. **Quizzes Adaptativos**: Gerados dinamicamente com base no seu nível de conhecimento.
+
+## 🛡️ Segurança e Escalabilidade
+
+- **Environment Variables**: API Keys não são expostas no código fonte.
+- **Offline-First**: Persistência local via Zustand/IndexedDB.
+- **PWA**: Instalável e pronto para uso offline.
+
+## 🛠️ Instalação e Desenvolvimento
+
+```bash
+# Instalar dependências
+npm install
+
+# Iniciar ambiente de desenvolvimento
+npm run dev
+
+# Gerar build de produção
+npm run build
+```
+
+## 📈 Roadmap
+
+- [ ] Backend Serverless (Supabase/Firebase)
+- [ ] Sistema de Autenticação (Clerk/Auth.js)
+- [ ] Colaboração em Tempo Real
+- [ ] Exportação para Anki/Notion
+- [ ] Aplicativo Mobile Nativo (React Native)
 
 ---
-Desenvolvido com ❤️ para transformar a educação.
+*EduAI Pro - Transformando informação em conhecimento com inteligência.*
