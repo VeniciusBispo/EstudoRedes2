@@ -8,8 +8,7 @@ import {
   Layers, 
   Lightbulb,
   ChevronRight,
-  Brain,
-  Map as MapIcon
+  Brain
 } from 'lucide-react';
 import type { StudyMaterial } from '../types';
 
