@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SignalLab from './SignalLab';
 import { 
   FileText, 
@@ -7,7 +9,7 @@ import {
   Lightbulb,
   ChevronRight,
   Brain,
-  ArrowRight
+  Map as MapIcon
 } from 'lucide-react';
 import type { StudyMaterial } from '../types';
 
@@ -99,7 +101,7 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
                 <div className="premium-card">
-                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-tertiary)', borderBottom: '1px solid var(--glass-border)', pb: '8px' }}>Tópicos Principais</h4>
+                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-tertiary)', borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px' }}>Tópicos Principais</h4>
                   <div style={{ display: 'grid', gap: '12px' }}>
                     {material.topics.map((topic, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--glass)', borderRadius: '8px' }}>
@@ -107,14 +109,14 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
                           <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-tertiary)' }}></div>
                           <span style={{ fontSize: '0.9rem' }}>{topic}</span>
                         </div>
-                        <ArrowRight size={14} color="var(--text-secondary)" />
+                        <ChevronRight size={14} color="var(--text-secondary)" />
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="premium-card">
-                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-secondary)', borderBottom: '1px solid var(--glass-border)', pb: '8px' }}>Conceitos Chave</h4>
+                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-secondary)', borderBottom: '1px solid var(--glass-border)', paddingBottom: '8px' }}>Conceitos Chave</h4>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                     Os elementos identificados como fundamentais para a compreensão deste material incluem a análise de sinais, fluxo de dados e arquiteturas de interconexão.
                   </p>
