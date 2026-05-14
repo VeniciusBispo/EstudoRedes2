@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import SignalLab from './SignalLab';
 import { 
   FileText, 
+  Activity, 
   HelpCircle, 
   Layers, 
-  Map as MapIcon, 
   Lightbulb,
   ChevronRight,
-  Brain
+  Brain,
+  ArrowRight
 } from 'lucide-react';
 import type { StudyMaterial } from '../types';
 
@@ -18,13 +18,13 @@ interface StudyDashboardProps {
 }
 
 const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
-  const [activeTab, setActiveTab] = useState<'summary' | 'questions' | 'flashcards' | 'mindmap'>('summary');
+  const [activeTab, setActiveTab] = useState<'teoria' | 'lab' | 'questoes' | 'flashcards'>('teoria');
 
   const tabs = [
-    { id: 'summary', icon: FileText, label: 'Resumo' },
-    { id: 'questions', icon: HelpCircle, label: 'Questões' },
+    { id: 'teoria', icon: FileText, label: 'Teoria Interativa' },
+    { id: 'lab', icon: Activity, label: 'Lab. de Sinais' },
+    { id: 'questoes', icon: HelpCircle, label: 'Banco de Questões' },
     { id: 'flashcards', icon: Layers, label: 'Flashcards' },
-    { id: 'mindmap', icon: MapIcon, label: 'Mapa Mental' },
   ];
 
   return (
@@ -32,7 +32,7 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
       <header style={{ marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--accent-primary)', marginBottom: '8px' }}>
           <Brain size={24} />
-          <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem' }}>Análise IA Completa</span>
+          <span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem' }}>Material Analisado por IA</span>
         </div>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '16px' }}>{material.title}</h1>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -49,7 +49,8 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
         padding: '6px', 
         borderRadius: '16px', 
         marginBottom: '32px',
-        maxWidth: 'fit-content'
+        maxWidth: 'fit-content',
+        overflowX: 'auto'
       }}>
         {tabs.map((tab) => (
           <button
@@ -66,7 +67,8 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
               color: activeTab === tab.id ? 'white' : 'var(--text-secondary)',
               cursor: 'pointer',
               transition: 'var(--transition-smooth)',
-              fontWeight: 600
+              fontWeight: 600,
+              whiteSpace: 'nowrap'
             }}
           >
             <tab.icon size={18} />
@@ -83,12 +85,12 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
         >
-          {activeTab === 'summary' && (
+          {activeTab === 'teoria' && (
             <div className="summary-content">
-              <div className="premium-card" style={{ marginBottom: '24px' }}>
+              <div className="premium-card" style={{ marginBottom: '32px' }}>
                 <h3 style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                   <Lightbulb className="gradient-text" />
-                  Visão Geral
+                  Visão Geral do Conteúdo
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8' }}>
                   {material.summary}
@@ -96,21 +98,49 @@ const StudyDashboard: React.FC<StudyDashboardProps> = ({ material }) => {
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                {material.topics.map((topic, i) => (
-                  <div key={i} className="premium-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></div>
-                      <span>{topic}</span>
-                    </div>
-                    <ChevronRight size={18} color="var(--text-secondary)" />
+                <div className="premium-card">
+                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-tertiary)', borderBottom: '1px solid var(--glass-border)', pb: '8px' }}>Tópicos Principais</h4>
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {material.topics.map((topic, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--glass)', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-tertiary)' }}></div>
+                          <span style={{ fontSize: '0.9rem' }}>{topic}</span>
+                        </div>
+                        <ArrowRight size={14} color="var(--text-secondary)" />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                <div className="premium-card">
+                  <h4 style={{ marginBottom: '16px', color: 'var(--accent-secondary)', borderBottom: '1px solid var(--glass-border)', pb: '8px' }}>Conceitos Chave</h4>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    Os elementos identificados como fundamentais para a compreensão deste material incluem a análise de sinais, fluxo de dados e arquiteturas de interconexão.
+                  </p>
+                  <div style={{ marginTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <span className="glass" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem' }}>Analógico</span>
+                    <span className="glass" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem' }}>Digital</span>
+                    <span className="glass" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem' }}>Full-Duplex</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {activeTab === 'questions' && (
+          {activeTab === 'lab' && (
+            <SignalLab />
+          )}
+
+          {activeTab === 'questoes' && (
             <div className="questions-grid" style={{ display: 'grid', gap: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>Total de {material.questions.length} questões geradas</p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.8rem' }}>Simulado ENEM</button>
+                  <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.8rem' }}>Técnico</button>
+                </div>
+              </div>
               {material.questions.map((q) => (
                 <div key={q.id} className="premium-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
