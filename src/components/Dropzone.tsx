@@ -9,6 +9,8 @@ interface DropzoneProps {
 }
 
 const Dropzone: React.FC<DropzoneProps> = ({ onFilesAccepted, onTextSubmit }) => {
+  const [manualText, setManualText] = React.useState('');
+  
   const onDrop = useCallback((acceptedFiles: File[]) => {
     onFilesAccepted(acceptedFiles);
   }, [onFilesAccepted]);
@@ -23,54 +25,60 @@ const Dropzone: React.FC<DropzoneProps> = ({ onFilesAccepted, onTextSubmit }) =>
     }
   });
 
+  // Separate motion props from dropzone props to avoid refKey conflicts
+  const dropzoneProps = getRootProps();
+
   return (
     <div className="dropzone-container" style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-card"
-        style={{
-          textAlign: 'center',
-          padding: '60px 40px',
-          cursor: 'pointer',
-          borderStyle: 'dashed',
-          borderWidth: '2px',
-          borderColor: isDragActive ? 'var(--accent-primary)' : 'var(--glass-border)',
-          background: isDragActive ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-secondary)'
-        }}
-        {...getRootProps()}
       >
-        <input {...getInputProps()} />
-        <div style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '20px',
-          background: 'var(--glass)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto 24px',
-          color: 'var(--accent-primary)'
-        }}>
-          <Upload size={40} />
-        </div>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Arraste seus materiais aqui</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px' }}>
-          Suporta PDF, DOCX, Imagens, Slides e Texto. Nossa IA irá processar tudo instantaneamente.
-        </p>
-        
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' }}>
-          {[
-            { icon: FileText, label: 'Documentos' },
-            { icon: ImageIcon, label: 'Imagens' },
-            { icon: Type, label: 'Texto' },
-            { icon: LinkIcon, label: 'Links' }
-          ].map((item, idx) => (
-            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              <item.icon size={16} />
-              {item.label}
-            </div>
-          ))}
+        <div
+          {...dropzoneProps}
+          className="premium-card"
+          style={{
+            textAlign: 'center',
+            padding: '60px 40px',
+            cursor: 'pointer',
+            borderStyle: 'dashed',
+            borderWidth: '2px',
+            borderColor: isDragActive ? 'var(--accent-primary)' : 'var(--glass-border)',
+            background: isDragActive ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-secondary)'
+          }}
+        >
+          <input {...getInputProps()} />
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '20px',
+            background: 'var(--glass)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 24px',
+            color: 'var(--accent-primary)'
+          }}>
+            <Upload size={40} />
+          </div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Arraste seus materiais aqui</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '32px' }}>
+            Suporta PDF, DOCX, Imagens, Slides e Texto. Nossa IA irá processar tudo instantaneamente.
+          </p>
+          
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' }}>
+            {[
+              { icon: FileText, label: 'Documentos' },
+              { icon: ImageIcon, label: 'Imagens' },
+              { icon: Type, label: 'Texto' },
+              { icon: LinkIcon, label: 'Links' }
+            ].map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                <item.icon size={16} />
+                {item.label}
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -78,6 +86,8 @@ const Dropzone: React.FC<DropzoneProps> = ({ onFilesAccepted, onTextSubmit }) =>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>Ou cole seu texto manualmente</p>
         <textarea
           placeholder="Cole aqui o conteúdo que deseja estudar..."
+          value={manualText}
+          onChange={(e) => setManualText(e.target.value)}
           style={{
             width: '100%',
             height: '150px',
@@ -95,7 +105,11 @@ const Dropzone: React.FC<DropzoneProps> = ({ onFilesAccepted, onTextSubmit }) =>
           onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
           onBlur={(e) => e.target.style.borderColor = 'var(--glass-border)'}
         />
-        <button className="btn-secondary" style={{ marginTop: '16px', width: '100%' }}>
+        <button 
+          className="btn-secondary" 
+          style={{ marginTop: '16px', width: '100%' }}
+          onClick={() => manualText.trim() && onTextSubmit(manualText)}
+        >
           Processar Texto
         </button>
       </div>

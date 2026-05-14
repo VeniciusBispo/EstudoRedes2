@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Dropzone from './components/Dropzone';
 import StudyDashboard from './components/StudyDashboard';
-import { StudyMaterial } from './types';
+import type { StudyMaterial } from './types';
 import { processContent } from './services/ai';
 import { Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

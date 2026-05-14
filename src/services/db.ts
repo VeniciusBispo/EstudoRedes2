@@ -1,5 +1,6 @@
-import { openDB, IDBPDatabase } from 'idb';
-import { StudyMaterial } from '../types';
+import { openDB } from 'idb';
+import type { IDBPDatabase } from 'idb';
+import type { StudyMaterial } from '../types';
 
 const DB_NAME = 'edu-ai-pro-db';
 const STORE_NAME = 'materials';

@@ -1,4 +1,4 @@
-import { StudyMaterial, Question, Flashcard } from '../types';
+import type { StudyMaterial, Question, Flashcard } from '../types';
 
 // In a real app, you would use the Gemini API here.
 // For this demo, we'll simulate the AI processing.

@@ -9,7 +9,7 @@ import {
   ChevronRight,
   Brain
 } from 'lucide-react';
-import { StudyMaterial } from '../types';
+import type { StudyMaterial } from '../types';
 
 import Flashcard from './Flashcard';
 
