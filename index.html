@@ -466,26 +466,31 @@
                 window.sessionApiKey = key.trim(); 
             }
 
-            const tryModel = async (modelName) => {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${window.sessionApiKey}`;
-                const aiPrompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados e IoT. Retorne EXCLUSIVAMENTE um array JSON puro, no formato: [{\"q\": \"pergunta\", \"a\": \"resposta\"}].";
-                const payload = { contents: [{parts:[{text:aiPrompt}]}] };
-                return await fetchWithRetry(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-            };
-
             try {
-                let data;
+                // --- Passo 1: Descoberta de Modelos ---
+                let selectedModel = "gemini-1.5-flash"; // Default
                 try {
-                    // Tenta o Flash primeiro
-                    data = await tryModel("gemini-1.5-flash");
+                    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${window.sessionApiKey}`;
+                    const modelData = await fetchWithRetry(listUrl, { method: "GET" });
+                    const availableModels = modelData.models || [];
+                    const bestModel = availableModels.find(m => m.supportedGenerationMethods.includes("generateContent") && (m.name.includes("flash") || m.name.includes("pro")));
+                    if (bestModel) {
+                        // O nome vem como "models/gemini-1.5-flash", pegamos só o final
+                        selectedModel = bestModel.name.split('/').pop();
+                    }
                 } catch (e) {
-                    if (e.message.includes("404")) {
-                        // Se 404, tenta o Pro (mais compatível)
-                        data = await tryModel("gemini-pro");
-                    } else { throw e; }
+                    if (e.message.includes("403")) throw new Error("Chave de API Inválida ou sem permissão (403 Forbidden). Verifique no AI Studio.");
+                    console.warn("Falha ao listar modelos, tentando padrão...", e);
                 }
 
+                // --- Passo 2: Gerar Questões ---
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${window.sessionApiKey}`;
+                const aiPrompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados e IoT. Retorne EXCLUSIVAMENTE um array JSON puro, no formato: [{\"q\": \"pergunta\", \"a\": \"resposta\"}].";
+                const payload = { contents: [{parts:[{text:aiPrompt}]}] };
+                
+                const data = await fetchWithRetry(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
                 let txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
                 if (txt) { 
                     const jsonMatch = txt.match(/\[[\s\S]*\]/);
                     if (jsonMatch) {
@@ -493,12 +498,12 @@
                         allQuestionsDB.push(...nq); 
                         currentBatchIndex = Math.floor((allQuestionsDB.length - nq.length) / BATCH_SIZE); 
                         renderQuestions(); 
-                        showModalInfo(`🎉 Sucesso! Geradas ${nq.length} novas questões.`); 
-                    } else { throw new Error("Formato de resposta inválido."); }
+                        showModalInfo(`🎉 Sucesso! Usando modelo ${selectedModel}, geramos ${nq.length} questões.`); 
+                    } else { throw new Error("A IA retornou um formato de texto em vez de JSON."); }
                 }
             } catch(e) { 
-                console.error("Erro API:", e); 
-                showModalInfo(`Erro: ${e.message}. Tente outra API Key ou verifique sua conexão.`); 
+                console.error("Erro detalhado:", e); 
+                showModalInfo(`Erro: ${e.message}`); 
             }
             finally { 
                 btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); 
