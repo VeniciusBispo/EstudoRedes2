@@ -1,27 +1,475 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- SEO -->
-    <title>EduAI Pro | Plataforma Educacional Universal com IA</title>
-    <meta name="description" content="Transforme PDF, DOCX e imagens em materiais de estudo interativos com IA. Laboratório de sinais, quizzes e gamificação." />
-    <meta name="keywords" content="estudo, ia, gemini, redes de computadores, iot, sinais, quiz, flashcards" />
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="EduAI Pro" />
-    <meta property="og:description" content="Plataforma de estudos universal potencializada por IA." />
-    <meta property="og:type" content="website" />
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-black text-white selection:bg-primary/30 antialiased">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Estudo Interativo: Comunicação de Dados e IoT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: '#1E3A8A',
+                        secondary: '#3B82F6',
+                        accent: '#F59E0B',
+                        background: '#F8FAFC',
+                        surface: '#FFFFFF',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #1E293B; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 350px; background: white; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        @media (max-width: 640px) { .chart-container { height: 250px; } }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-slow { animation: pulse 3s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📡</span>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight">Redes II: Prep. Prova</h1>
+                        <p class="text-xs text-blue-200">Comunicação de Dados & IoT</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-1 border border-blue-700 rounded-lg p-1 bg-blue-800/50">
+                    <button onclick="nav('teoria')" id="btn-teoria" class="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-white text-primary">Teoria Interativa</button>
+                    <button onclick="nav('lab')" id="btn-lab" class="px-4 py-2 rounded-md text-sm font-medium transition-colors text-white hover:bg-white/20">Lab. de Sinais</button>
+                    <button onclick="nav('quiz')" id="btn-quiz" class="px-4 py-2 rounded-md text-sm font-medium transition-colors text-white hover:bg-white/20">Banco de Questões</button>
+                </nav>
+                <button class="md:hidden text-white text-2xl" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">☰</button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 border-t border-blue-800">
+            <button onclick="nav('teoria'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left px-4 py-3 border-b border-blue-800">Teoria Interativa</button>
+            <button onclick="nav('lab'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left px-4 py-3 border-b border-blue-800">Lab. de Sinais</button>
+            <button onclick="nav('quiz'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left px-4 py-3">Banco de Questões</button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ===== SEÇÃO TEORIA ===== -->
+        <section id="sec-teoria" class="fade-in block">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-primary mb-2">Fundamentos da Comunicação de Dados</h2>
+                <p class="text-textMuted">Explore os conceitos vitais através dos cartões interativos. Clique nos cabeçalhos para expandir detalhes.</p>
+            </div>
+
+            <!-- Conceitos Básicos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Componentes da Comunicação</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"><span class="text-2xl">💬</span><div><strong>Mensagem</strong> — A informação (dados) a ser transmitida.</div></li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"><span class="text-2xl">📤</span><div><strong>Transmissor</strong> — Dispositivo que envia a mensagem.</div></li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"><span class="text-2xl">📥</span><div><strong>Receptor</strong> — Dispositivo que recebe a mensagem.</div></li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"><span class="text-2xl">📜</span><div><strong>Protocolo</strong> — Regras que padronizam a comunicação entre dispositivos.</div></li>
+                        <li class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded"><span class="text-2xl">🔌</span><div><strong>Meio</strong> — Canal físico pelo qual o sinal trafega (cabo, ar, fibra).</div></li>
+                    </ul>
+                </div>
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Analógico vs Digital</h3>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-start gap-4"><div class="text-3xl mt-1 text-secondary">〰️</div><div><strong class="text-lg">Dado/Sinal Analógico</strong><p class="text-sm text-gray-600">Representação contínua. Infinitos valores num intervalo. Sinais eletromagnéticos como ondas de rádio. Ex: Voz humana.</p></div></div>
+                        <div class="flex items-start gap-4"><div class="text-3xl mt-1 text-accent">🔲</div><div><strong class="text-lg">Dado/Sinal Digital</strong><p class="text-sm text-gray-600">Representação discreta (0s e 1s). Pulsos de tensão definidos. Mais imune a ruídos. Ex: Arquivos de computador.</p></div></div>
+                        <div class="mt-2 bg-blue-50 p-3 rounded-lg text-sm border border-blue-100"><strong>Conversões:</strong> Analógico → Digital (ADC/Digitalização) | Digital → Analógico (DAC/Modulação). São 4 combinações possíveis: AA, AD, DA, DD.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fluxo de Dados -->
+            <div class="mb-10">
+                <h3 class="text-2xl font-bold text-primary mb-4">Fluxo de Dados</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-surface p-5 rounded-lg border border-gray-200 text-center shadow-sm">
+                        <div class="text-4xl mb-2 text-secondary">A ➔ B</div>
+                        <h4 class="font-bold text-lg">Simplex</h4>
+                        <p class="text-sm text-gray-600 mt-2">Um único sentido. Apenas transmite ou apenas recebe.</p>
+                        <p class="text-xs font-bold text-gray-400 mt-2">Ex: Rádio FM, Teclado</p>
+                    </div>
+                    <div class="bg-surface p-5 rounded-lg border border-gray-200 text-center shadow-sm">
+                        <div class="text-4xl mb-2 text-accent">A ↔ B</div>
+                        <h4 class="font-bold text-lg">Half Duplex</h4>
+                        <p class="text-sm text-gray-600 mt-2">Dois sentidos, mas <strong>NÃO</strong> simultaneamente.</p>
+                        <p class="text-xs font-bold text-gray-400 mt-2">Ex: Walkie-Talkie</p>
+                    </div>
+                    <div class="bg-surface p-5 rounded-lg border-blue-500 border-2 text-center shadow-md bg-blue-50 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-6xl opacity-10">🚀</div>
+                        <div class="text-4xl mb-2 text-primary flex justify-center flex-col items-center leading-none"><span>A ➔ B</span><span>B ➔ A</span></div>
+                        <h4 class="font-bold text-lg">Full Duplex</h4>
+                        <p class="text-sm text-gray-600 mt-2">Dois sentidos simultaneamente. Máxima eficiência.</p>
+                        <p class="text-xs font-bold text-gray-400 mt-2">Ex: Telefonia, Redes modernas (Ethernet)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sinais -->
+            <div class="mb-10">
+                <h3 class="text-2xl font-bold text-primary mb-4">Sinais: Frequência, Período e Onda</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-surface p-5 rounded-xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-secondary mb-2">Periódico vs Não Periódico</h4>
+                        <p class="text-sm text-gray-600"><strong>Periódico:</strong> Repete um padrão exato (ciclo) ao longo do tempo.<br><strong>Não Periódico:</strong> Não possui padrão de repetição constante (ex: voz humana).</p>
+                    </div>
+                    <div class="bg-surface p-5 rounded-xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-secondary mb-2">Frequência (f) e Período (T)</h4>
+                        <p class="text-sm text-gray-600"><strong>Frequência:</strong> Ciclos completos por segundo (Hz).<br><strong>Período:</strong> Tempo para completar 1 ciclo.<br><strong>Fórmula:</strong> f = 1/T e T = 1/f.</p>
+                    </div>
+                    <div class="bg-surface p-5 rounded-xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-secondary mb-2">Amplitude e Fase</h4>
+                        <p class="text-sm text-gray-600"><strong>Amplitude:</strong> Valor máximo de força/tensão do sinal.<br><strong>Fase:</strong> Representada em graus (0-360°) ou radianos (0-2π). Define a posição no ciclo.</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-accent rounded shadow-sm">
+                    <h4 class="font-bold text-sm text-yellow-800">⚡ Regra de Ouro (PROVA):</h4>
+                    <p class="text-sm text-yellow-900 mt-1">Frequência <strong>Alta</strong> = Comprimento de Onda <strong>Menor</strong>. | Frequência <strong>Baixa</strong> = Comprimento de Onda <strong>Maior</strong>. São grandezas inversamente proporcionais.</p>
+                </div>
+                <div class="mt-4 bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm">
+                    <strong>Sinal Composto:</strong> Combinação de várias ondas senoidais simples. Uma onda simples transporta pouca informação; sinais reais são compostos.
+                </div>
+            </div>
+
+            <!-- Largura de Banda e Perdas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Largura de Banda</h3>
+                    <p class="text-sm text-gray-600 mb-3">Capacidade de transmissão de dados — a faixa de frequências que o meio suporta.</p>
+                    <p class="text-sm text-gray-600 mb-3"><strong>Cálculo:</strong> Bandwidth = F<sub>max</sub> - F<sub>min</sub></p>
+                    <p class="text-sm text-gray-600">Quanto maior a taxa de dados desejada, maior a largura de banda necessária. Limitada pelo meio físico (Shannon/Nyquist).</p>
+                </div>
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Perdas na Transmissão</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded"><span class="font-semibold text-red-600">📉 Atenuação</span><span class="text-sm text-gray-600 w-2/3 text-right">Perda de energia pela distância. Compensada por amplificadores/repetidores.</span></li>
+                        <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded"><span class="font-semibold text-orange-500">⚡ Interferência</span><span class="text-sm text-gray-600 w-2/3 text-right">Sinais externos de mesma frequência atrapalhando o sinal.</span></li>
+                        <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded"><span class="font-semibold text-gray-800">📻 Ruído</span><span class="text-sm text-gray-600 w-2/3 text-right">Energia indesejada (térmico, etc). Não eliminável, apenas mitigado.</span></li>
+                        <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded"><span class="font-semibold text-purple-600">🔀 Distorção</span><span class="text-sm text-gray-600 w-2/3 text-right">Mudança na forma do sinal — frequências viajam a velocidades diferentes.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Telefonia Celular -->
+            <div class="mb-10">
+                <h3 class="text-2xl font-bold text-primary mb-4">Redes de Telefonia Celular</h3>
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-blue-50 rounded-lg"><div class="text-3xl mb-2">📡</div><strong>Antenas / ERB</strong><p class="text-xs text-gray-600 mt-1">Cobertura de rádio para a célula</p></div>
+                        <div class="p-4 bg-green-50 rounded-lg"><div class="text-3xl mb-2">🏗️</div><strong>Estação Rádio-Base</strong><p class="text-xs text-gray-600 mt-1">Infraestrutura de transmissão</p></div>
+                        <div class="p-4 bg-purple-50 rounded-lg"><div class="text-3xl mb-2">🌐</div><strong>Núcleo da Rede</strong><p class="text-xs text-gray-600 mt-1">Conecta ERBs à internet, gerencia autenticação</p></div>
+                        <div class="p-4 bg-orange-50 rounded-lg"><div class="text-3xl mb-2">📱</div><strong>Dispositivos Móveis</strong><p class="text-xs text-gray-600 mt-1">Celulares do usuário</p></div>
+                    </div>
+                    <div class="mt-4 bg-blue-50 p-3 rounded-lg text-sm border border-blue-100"><strong>Handoff:</strong> Transferência da conexão de uma antena para outra sem cair a chamada, quando o usuário se movimenta entre células.</div>
+                </div>
+            </div>
+
+            <!-- WSN -->
+            <div class="mb-10">
+                <h3 class="text-2xl font-bold text-primary mb-4">Redes de Sensores Sem Fio (WSN)</h3>
+                <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm text-gray-600 mb-4">Redes formadas por pequenos dispositivos autônomos que monitoram condições físicas. O maior desafio é o consumo de bateria.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="p-3 bg-blue-50 rounded-lg text-center text-sm"><strong class="text-blue-800">Camada de Enlace</strong><p class="text-xs text-gray-600 mt-1">Acesso ao meio, resolve colisões</p></div>
+                        <div class="p-3 bg-green-50 rounded-lg text-center text-sm"><strong class="text-green-800">Camada de Rede</strong><p class="text-xs text-gray-600 mt-1">Roteamento dos pacotes</p></div>
+                        <div class="p-3 bg-purple-50 rounded-lg text-center text-sm"><strong class="text-purple-800">Camada de Transporte</strong><p class="text-xs text-gray-600 mt-1">Entrega confiável dos dados</p></div>
+                        <div class="p-3 bg-orange-50 rounded-lg text-center text-sm"><strong class="text-orange-800">Camada de Aplicação</strong><p class="text-xs text-gray-600 mt-1">Serviços e aplicações finais</p></div>
+                    </div>
+                    <div class="mt-4 bg-yellow-50 p-3 rounded-lg text-sm border border-yellow-200"><strong>Protocolos WSN Industriais:</strong> São 4 protocolos principais focados em confiabilidade e baixo consumo (ex: WirelessHART, ISA100.11a, ZigBee PRO, 6LoWPAN).</div>
+                </div>
+            </div>
+
+            <!-- IoT -->
+            <div class="mb-10">
+                <h3 class="text-2xl font-bold text-primary mb-4">Internet das Coisas (IoT)</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold mb-4 text-center">Camadas da Arquitetura IoT</h4>
+                        <div class="flex flex-col gap-2">
+                            <div class="border border-blue-200 rounded-lg overflow-hidden">
+                                <button onclick="toggleLayer('app-layer')" class="w-full bg-blue-100 hover:bg-blue-200 p-3 text-left font-bold text-primary flex justify-between items-center">3. Camada de Aplicação <span>▼</span></button>
+                                <div id="app-layer" class="hidden p-4 bg-white text-sm text-gray-700">Serviços ao usuário final. Processamento inteligente, dashboards, tomada de decisão. Ex: Smart City, Saúde.</div>
+                            </div>
+                            <div class="border border-green-200 rounded-lg overflow-hidden relative border-l-4 border-l-accent">
+                                <button onclick="toggleLayer('net-layer')" class="w-full bg-green-50 hover:bg-green-100 p-3 text-left font-bold text-green-800 flex justify-between items-center">2. Camada de Rede (Backhaul) <span>▼</span></button>
+                                <div id="net-layer" class="p-4 bg-white text-sm text-gray-700 block">
+                                    <span class="bg-accent text-white text-xs px-2 py-1 rounded mb-2 inline-block font-bold pulse-slow">ÊNFASE DO PROFESSOR</span><br>
+                                    Transmissão de dados. O <strong>Backhaul</strong> é a rede de transporte que interliga as bordas ao núcleo/nuvem. É o gargalo estrutural que precisa ser robusto. Pode ser fibra óptica ou rádio enlace.
+                                </div>
+                            </div>
+                            <div class="border border-orange-200 rounded-lg overflow-hidden">
+                                <button onclick="toggleLayer('per-layer')" class="w-full bg-orange-50 hover:bg-orange-100 p-3 text-left font-bold text-orange-800 flex justify-between items-center">1. Camada de Percepção <span>▼</span></button>
+                                <div id="per-layer" class="hidden p-4 bg-white text-sm text-gray-700">Sensores físicos e coleta de dados brutos. Identificação de objetos. Tecnologias de curto alcance (RFID, NFC).</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-surface p-6 rounded-xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold mb-4 text-center border-b pb-2">Tecnologias de Comunicação IoT</h4>
+                        <p class="text-xs text-gray-500 mb-4 text-center">IMPORTANTE para a prova — especialmente a rede 2.4 GHz</p>
+                        <div class="flex flex-wrap gap-3 justify-center">
+                            <div class="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-md cursor-help relative group">Rede 2.4 GHz<div class="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-black text-white text-xs rounded z-10 -left-10">Banda livre sem licenciamento. Suscetível a interferências (Wi-Fi, BT, Zigbee, micro-ondas compartilham).</div></div>
+                            <div class="px-4 py-2 bg-gray-200 text-gray-800 rounded-full text-sm font-semibold">Wi-Fi (802.11)</div>
+                            <div class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">Bluetooth / BLE</div>
+                            <div class="px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-semibold">Zigbee (Mesh)</div>
+                            <div class="px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">NFC (13.56 MHz)</div>
+                            <div class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">RFID</div>
+                        </div>
+                        <div class="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h5 class="font-bold text-sm text-primary mb-2">Blocos/Elementos da IoT:</h5>
+                            <ul class="text-sm text-gray-600 list-disc pl-5">
+                                <li><strong>Identificação:</strong> Identidade única (IP, MAC, RFID).</li>
+                                <li><strong>Sensores/Comunicadores:</strong> Captura e envio de dados.</li>
+                                <li><strong>Computação:</strong> Processamento na nuvem ou borda.</li>
+                                <li><strong>Serviços:</strong> Valor final (automação, controle, etc).</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>Wi-Fi:</strong> Alta taxa, alto consumo. Bandas 2.4 e 5 GHz.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>BLE:</strong> Bluetooth Low Energy para sensores de longa duração.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>Zigbee:</strong> Rede mesh, baixo consumo, automação residencial.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>RFID:</strong> Tag ativa (bateria) vs passiva (energia do leitor).</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>NFC:</strong> Curtíssimo alcance (~4-10cm). Pagamentos por aproximação.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>2.4 GHz:</strong> Banda não licenciada, alta interferência.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SEÇÃO LAB ===== -->
+        <section id="sec-lab" class="hidden fade-in">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-primary mb-2">Comportamento de Ondas e Sinais</h2>
+                <p class="text-textMuted">Interaja com os controles para entender visualmente a relação entre Frequência e Comprimento de Onda.</p>
+            </div>
+            <div class="bg-surface p-6 rounded-xl shadow-md border border-gray-200">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold mb-4">Painel de Controle</h3>
+                        <div class="mb-6">
+                            <label for="freq-slider" class="block text-sm font-medium text-gray-700 mb-1">Frequência (Hz): <span id="freq-val" class="text-secondary font-bold text-lg">2</span></label>
+                            <input type="range" id="freq-slider" min="1" max="10" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-secondary">
+                            <p class="text-xs text-gray-500 mt-1">Ciclos por segundo. Altera a velocidade de repetição.</p>
+                        </div>
+                        <div class="mb-6">
+                            <label for="amp-slider" class="block text-sm font-medium text-gray-700 mb-1">Amplitude: <span id="amp-val" class="text-accent font-bold text-lg">50</span></label>
+                            <input type="range" id="amp-slider" min="10" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent">
+                            <p class="text-xs text-gray-500 mt-1">Força ou altura do sinal.</p>
+                        </div>
+                        <div class="p-4 bg-yellow-50 border-l-4 border-accent rounded shadow-sm mt-4">
+                            <h4 class="font-bold text-sm text-yellow-800">Regra de Ouro (Prova):</h4>
+                            <p class="text-sm text-yellow-900 mt-1">Frequência <span class="font-bold">Alta</span> = Comprimento de Onda <span class="font-bold">Menor</span>.<br>Frequência <span class="font-bold">Baixa</span> = Comprimento de Onda <span class="font-bold">Maior</span>.</p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 flex flex-col items-center justify-center bg-white rounded-lg p-2">
+                        <div class="chart-container"><canvas id="waveChart"></canvas></div>
+                        <div class="w-full mt-4 flex justify-between text-xs text-gray-500 font-mono px-4 max-w-2xl">
+                            <span>0s (Início)</span><span>Tempo →</span><span>1s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SEÇÃO QUIZ ===== -->
+        <section id="sec-quiz" class="hidden fade-in relative">
+            <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-primary mb-2">Simulado Rápido</h2>
+                    <p class="text-textMuted">Clique na pergunta para revelar a resposta. Use o botão no fim para gerar mais questões com IA.</p>
+                </div>
+                <div class="w-full md:w-64">
+                    <input type="text" id="search-quiz" placeholder="Buscar palavra-chave..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary transition">
+                </div>
+            </div>
+            <div class="flex gap-4 mb-6 text-sm">
+                <div class="bg-blue-50 px-4 py-2 rounded-full border border-blue-200"><span class="font-bold text-primary">Exibindo:</span> <span id="batch-info">1 a 60</span></div>
+                <div class="bg-green-50 px-4 py-2 rounded-full border border-green-200"><span class="font-bold text-green-700">Dica:</span> Use como flashcards</div>
+            </div>
+            <div id="quiz-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div class="mt-10 flex flex-col items-center justify-center pb-8">
+                <button id="btn-generate-ai" onclick="generateMoreQuestionsAI()" class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-800 hover:shadow-lg transition-all flex items-center gap-3 transform hover:-translate-y-1">
+                    <span class="text-2xl">✨</span> Gerar Mais 60 Questões (Gemini IA)
+                </button>
+                <div id="ai-loading" class="hidden flex-col items-center mt-4 fade-in">
+                    <div class="w-8 h-8 border-4 border-blue-200 border-t-secondary rounded-full animate-spin mb-2"></div>
+                    <p class="text-secondary font-semibold">A IA do Gemini está criando 60 novas questões...</p>
+                    <p class="text-xs text-gray-500 mt-1">Isso pode levar de 5 a 15 segundos.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm mt-auto">
+        <p>Desenvolvido como ferramenta de memorização para a disciplina de Redes de Computadores II.</p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] fade-in backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 text-center border-t-4 border-secondary">
+            <div class="text-4xl mb-4">ℹ️</div>
+            <p id="modal-msg" class="text-lg font-semibold text-gray-800 mb-6"></p>
+            <button onclick="closeModal()" class="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-800 transition w-full shadow-md">OK, Entendi</button>
+        </div>
+    </div>
+
+    <script>
+        function showModalInfo(msg) { document.getElementById('modal-msg').innerText = msg; const m = document.getElementById('custom-modal'); m.classList.remove('hidden'); m.classList.add('flex'); }
+        function closeModal() { const m = document.getElementById('custom-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+
+        function nav(section) {
+            ['teoria','lab','quiz'].forEach(s => { document.getElementById('sec-'+s).classList.add('hidden'); document.getElementById('btn-'+s).className = "px-4 py-2 rounded-md text-sm font-medium transition-colors text-white hover:bg-white/20"; });
+            document.getElementById('sec-'+section).classList.remove('hidden');
+            document.getElementById('btn-'+section).className = "px-4 py-2 rounded-md text-sm font-medium transition-colors bg-white text-primary";
+            if(section === 'lab' && waveChartInstance) setTimeout(() => waveChartInstance.resize(), 50);
+        }
+
+        function toggleLayer(id) { const el = document.getElementById(id); el.classList.toggle('hidden'); el.classList.toggle('block'); }
+
+        // --- Chart.js ---
+        let waveChartInstance = null;
+        function initChart() {
+            const ctx = document.getElementById('waveChart').getContext('2d');
+            waveChartInstance = new Chart(ctx, { type: 'line', data: { labels: Array.from({length:100},(_,i)=>i/100), datasets: [{ label: 'Sinal Senoidal', data: [], borderColor: '#3B82F6', backgroundColor: 'rgba(59,130,246,0.1)', borderWidth: 3, pointRadius: 0, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 200 }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'Amplitude: '+c.parsed.y.toFixed(2) } } }, scales: { x: { title: { display: true, text: 'Tempo (s)' }, grid: { color: '#E2E8F0' }, ticks: { maxTicksLimit: 11 } }, y: { min: -100, max: 100, title: { display: true, text: 'Amplitude' }, grid: { color: '#E2E8F0' } } } } });
+            updateChart();
+        }
+        function updateChart() {
+            if(!waveChartInstance) return;
+            const f = parseFloat(document.getElementById('freq-slider').value), a = parseFloat(document.getElementById('amp-slider').value);
+            document.getElementById('freq-val').innerText = f; document.getElementById('amp-val').innerText = a;
+            waveChartInstance.data.datasets[0].data = waveChartInstance.data.labels.map(t => a * Math.sin(2 * Math.PI * f * t));
+            waveChartInstance.update();
+        }
+        document.getElementById('freq-slider').addEventListener('input', updateChart);
+        document.getElementById('amp-slider').addEventListener('input', updateChart);
+
+        // --- 60 Questões ---
+        const allQuestionsDB = [
+            {q:"O que é uma mensagem na comunicação de dados?",a:"A informação (dados) a ser transmitida."},
+            {q:"Qual o papel do transmissor?",a:"Dispositivo que envia a mensagem."},
+            {q:"Qual o papel do receptor?",a:"Dispositivo que recebe a mensagem."},
+            {q:"O que são protocolos?",a:"Conjunto de regras que padronizam a comunicação."},
+            {q:"O que caracteriza um dado analógico?",a:"Possui representação contínua, assumindo infinitos valores."},
+            {q:"O que caracteriza um dado digital?",a:"Possui representação discreta (estados definidos: 0 e 1)."},
+            {q:"A voz humana é exemplo de qual tipo de dado?",a:"Dado analógico."},
+            {q:"Arquivos em um computador são exemplos de quais dados?",a:"Dados digitais."},
+            {q:"Como se chama a conversão de Analógico para Digital?",a:"Digitalização (via ADC)."},
+            {q:"Como se chama a conversão de Digital para Analógico?",a:"Modulação (via DAC)."},
+            {q:"Quais as 4 combinações possíveis de dados e sinais?",a:"Analógico/Analógico, Analógico/Digital, Digital/Analógico, Digital/Digital."},
+            {q:"O que é fluxo Simplex?",a:"Comunicação em apenas um único sentido (unidirecional)."},
+            {q:"Dê um exemplo de transmissão Simplex.",a:"Transmissão de TV ou Rádio FM."},
+            {q:"O que é fluxo Half Duplex?",a:"Comunicação nos dois sentidos, mas NUNCA simultaneamente."},
+            {q:"Dê um exemplo de Half Duplex.",a:"Rádio comunicador (Walkie-Talkie)."},
+            {q:"O que é fluxo Full Duplex?",a:"Comunicação nos dois sentidos simultaneamente."},
+            {q:"Dê um exemplo de Full Duplex.",a:"Chamada telefônica celular."},
+            {q:"O que é um sinal periódico?",a:"Sinal que repete um padrão exato (ciclo) ao longo do tempo."},
+            {q:"O que é um sinal não periódico?",a:"Sinal que não possui padrão de repetição constante."},
+            {q:"O que é Frequência (f)?",a:"Quantidade de ciclos completos por segundo (Hz)."},
+            {q:"O que é Período (T)?",a:"Tempo necessário para completar exatamente um ciclo."},
+            {q:"Qual a fórmula que relaciona Frequência e Período?",a:"f = 1/T e T = 1/f."},
+            {q:"O que é Amplitude em um sinal?",a:"O valor máximo de força ou tensão que o sinal atinge."},
+            {q:"Como a onda senoidal é representada em fase?",a:"Em graus (0 a 360) ou radianos (0 a 2π)."},
+            {q:"Qual a relação entre Frequência e Comprimento de onda?",a:"São grandezas inversamente proporcionais."},
+            {q:"Se a frequência aumenta, o que ocorre com o comprimento de onda?",a:"O comprimento de onda diminui."},
+            {q:"O que é um sinal analógico periódico composto?",a:"Combinação de várias ondas senoidais simples."},
+            {q:"O que é Largura de Banda (Bandwidth)?",a:"Faixa de frequências que o meio suporta (Fmax - Fmin)."},
+            {q:"O que é Atenuação?",a:"Perda de energia do sinal devido à resistência do meio e distância."},
+            {q:"Como compensar a Atenuação?",a:"Com amplificadores (analógico) ou repetidores (digital)."},
+            {q:"O que é Ruído?",a:"Energia elétrica indesejada inserida no sinal (ex: ruído térmico)."},
+            {q:"O que é Interferência?",a:"Sinais de outras fontes de frequência próxima atrapalhando o sinal."},
+            {q:"O que é Distorção?",a:"Mudança na forma do sinal porque frequências viajam a velocidades diferentes."},
+            {q:"Ruído térmico pode ser eliminado?",a:"Não, é propriedade física dos condutores; apenas mitigado."},
+            {q:"Repetidores digitais são melhores que amplificadores analógicos por quê?",a:"O repetidor limpa o ruído; o amplificador aumenta sinal E ruído juntos."},
+            {q:"O que é Handoff na telefonia celular?",a:"Transferir a conexão de uma antena para outra sem cair a chamada."},
+            {q:"Qual o papel da Antena/ERB na telefonia?",a:"Fornecer cobertura de rádio para os dispositivos na célula."},
+            {q:"O que é o núcleo (core) da rede celular?",a:"Parte central que conecta ERBs à internet e gerencia autenticação."},
+            {q:"O que são Redes de Sensores Sem Fio (WSN)?",a:"Redes de pequenos dispositivos autônomos que monitoram condições físicas."},
+            {q:"Qual o maior desafio das WSN?",a:"O consumo de bateria/energia dos sensores."},
+            {q:"O que faz a Camada de Enlace nas WSN?",a:"Controla o acesso ao meio sem fio e resolve colisões."},
+            {q:"O que faz a Camada de Rede nas WSN?",a:"Define a rota (roteamento) dos pacotes do sensor ao destino."},
+            {q:"O que é a Internet das Coisas (IoT)?",a:"Conexão de objetos cotidianos à internet para coleta e troca de dados."},
+            {q:"Quais as três camadas da arquitetura IoT?",a:"Percepção, Rede e Aplicação."},
+            {q:"O que faz a Camada de Percepção (IoT)?",a:"Usa sensores para capturar dados do ambiente físico."},
+            {q:"O que é o Backhaul na IoT?",a:"Rede de transporte que interliga as bordas da infraestrutura ao núcleo/nuvem."},
+            {q:"Por que o Backhaul é importante?",a:"É o gargalo estrutural que precisa ser robusto para aguentar o tráfego IoT."},
+            {q:"O Backhaul é sempre sem fio?",a:"Não, pode ser fibra óptica ou rádio enlace."},
+            {q:"Quais os blocos fundamentais da IoT?",a:"Identificação, Sensores/Comunicadores, Computação e Serviços."},
+            {q:"Qual a frequência IoT mais citada?",a:"A frequência de 2.4 GHz."},
+            {q:"Por que a banda 2.4 GHz é popular?",a:"Porque é banda livre de licenciamento na maior parte do mundo."},
+            {q:"Qual o problema da banda 2.4 GHz?",a:"Alta interferência (Wi-Fi, Bluetooth, Zigbee, micro-ondas compartilham)."},
+            {q:"O que é NFC?",a:"Comunicação sem fio de curtíssimo alcance (~4-10cm) a 13.56 MHz."},
+            {q:"Onde o NFC é comumente usado?",a:"Pagamentos por aproximação."},
+            {q:"O que é Bluetooth/BLE?",a:"Tecnologia PAN de curta distância. BLE = versão de baixo consumo para sensores."},
+            {q:"O que é Zigbee?",a:"Tecnologia para redes mesh, baixo consumo e baixas taxas de dados."},
+            {q:"O que é RFID?",a:"Uso de ondas de rádio para ler informações em uma etiqueta (tag)."},
+            {q:"Diferença entre Tag RFID Ativa e Passiva?",a:"Ativa tem bateria própria; passiva usa a energia do leitor."},
+            {q:"O Wi-Fi utiliza quais bandas?",a:"2.4 GHz e 5 GHz."},
+            {q:"Uma modulação altera qual propriedade da onda?",a:"Pode alterar Amplitude, Frequência ou Fase."}
+        ];
+
+        let currentBatchIndex = 0;
+        const BATCH_SIZE = 60;
+
+        function renderQuestions(filter = "") {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = "";
+            const lf = filter.toLowerCase();
+            const si = currentBatchIndex * BATCH_SIZE, ei = Math.min(si + BATCH_SIZE, allQuestionsDB.length);
+            document.getElementById('batch-info').innerText = `${si+1} a ${ei} (Total: ${allQuestionsDB.length})`;
+            let qs = allQuestionsDB.slice(si, ei);
+            if(filter.trim() !== "") { qs = allQuestionsDB.filter(i => i.q.toLowerCase().includes(lf) || i.a.toLowerCase().includes(lf)); document.getElementById('batch-info').innerText = `Busca (${qs.length} resultados)`; }
+            qs.forEach((item, index) => {
+                const di = filter === "" ? (si + index + 1) : (index + 1);
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group cursor-pointer flex flex-col";
+                card.onclick = function() { const ans = this.querySelector('.answer-block'), icon = this.querySelector('.toggle-icon'); if(ans.classList.contains('hidden')) { ans.classList.remove('hidden'); icon.textContent = "−"; this.classList.add('border-secondary'); } else { ans.classList.add('hidden'); icon.textContent = "+"; this.classList.remove('border-secondary'); } };
+                card.innerHTML = `<div class="p-4 flex justify-between items-start gap-2 bg-gray-50 group-hover:bg-blue-50 transition-colors flex-grow"><h4 class="font-bold text-sm text-gray-800 leading-tight"><span class="text-secondary mr-1">${di}.</span> ${item.q}</h4><span class="toggle-icon text-lg font-bold text-gray-400 group-hover:text-secondary">+</span></div><div class="answer-block hidden p-4 border-t border-gray-100 bg-white"><p class="text-sm font-semibold text-green-700">R: ${item.a}</p></div>`;
+                container.appendChild(card);
+            });
+            if(qs.length === 0) container.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500">Nenhuma questão encontrada para "${filter}".</div>`;
+        }
+
+        // --- Gemini API ---
+        async function fetchWithRetry(url, options) {
+            const delays = [1000,2000,4000,8000,16000]; let lastErr;
+            for (let i = 0; i <= 5; i++) { try { const r = await fetch(url, options); if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(`HTTP ${r.status}: ${e.error?.message||'Erro'}`); } return await r.json(); } catch(e) { lastErr = e; if(i<5) await new Promise(r=>setTimeout(r,delays[i])); } }
+            throw lastErr;
+        }
+
+        async function generateMoreQuestionsAI() {
+            const btn = document.getElementById('btn-generate-ai'), loading = document.getElementById('ai-loading');
+            document.getElementById('search-quiz').value = "";
+            btn.classList.add('hidden'); loading.classList.remove('hidden'); loading.classList.add('flex');
+            if (!window.sessionApiKey) { const key = prompt("Insira sua API Key do Google Gemini:"); if (!key || !key.trim()) { showModalInfo("Operação cancelada. API Key necessária."); btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); return; } window.sessionApiKey = key.trim(); }
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.sessionApiKey}`;
+            const prompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados, Sinais Analógicos/Digitais, Frequência, Comprimento de Onda, Largura de Banda, Perdas de Transmissão (atenuação, ruído, distorção, interferência), Redes de Telefonia Celular, Redes de Sensores Sem Fio (WSN), Internet das Coisas (IoT), arquitetura em camadas IoT, Backhaul, e Tecnologias de Comunicação IoT (2.4GHz, NFC, Bluetooth/BLE, Wi-Fi, Zigbee, RFID). Formato: pergunta e resposta direta de uma linha. Seja técnico e aprofundado.";
+            const payload = { contents: [{parts:[{text:prompt}]}], systemInstruction: {parts:[{text:"Você é um professor universitário especialista em Redes de Computadores."}]}, generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { q: {type:"STRING"}, a: {type:"STRING"} } } } } };
+            try {
+                const data = await fetchWithRetry(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (txt) { const nq = JSON.parse(txt); allQuestionsDB.push(...nq); currentBatchIndex = Math.floor((allQuestionsDB.length - nq.length) / BATCH_SIZE); renderQuestions(); showModalInfo(`🎉 Gemini gerou ${nq.length} novas questões!`); }
+            } catch(e) { console.error("Erro API:",e); showModalInfo("Erro ao gerar questões. Verifique sua API Key."); }
+            finally { btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); document.getElementById('sec-quiz').scrollIntoView({behavior:'smooth'}); }
+        }
+
+        document.getElementById('search-quiz').addEventListener('input', e => renderQuestions(e.target.value));
+        window.onload = function() { initChart(); renderQuestions(); };
+    </script>
+</body>
 </html>
