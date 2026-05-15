@@ -65,7 +65,37 @@
 
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- ===== SEÇÃO TEORIA ===== -->
+        <!-- ===== MODAL API KEY ===== -->
+    <div id="api-modal" class="hidden fixed inset-0 bg-primary/40 backdrop-blur-sm z-[100] items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all fade-in">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4">
+                    <span class="text-3xl">🔑</span>
+                </div>
+                <h3 class="text-2xl font-bold text-primary">Configurar Gemini IA</h3>
+                <p class="text-textMuted mt-2">Para gerar novas questões, você precisa de uma chave de API gratuita.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Sua API Key:</label>
+                    <input type="password" id="input-api-key" placeholder="Cole sua chave aqui..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-secondary focus:outline-none transition">
+                </div>
+                
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-accent/10 text-accent hover:bg-accent/20 rounded-xl font-bold transition">
+                    <span>✨</span> Obter Chave Grátis (AI Studio)
+                </a>
+                
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeApiModal()" class="flex-1 py-3 border border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition">Cancelar</button>
+                    <button onclick="saveApiKey()" class="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-blue-800 shadow-lg shadow-blue-200 transition">Salvar Chave</button>
+                </div>
+            </div>
+            <p class="text-center text-[10px] text-gray-400 mt-6 uppercase tracking-widest">Sua chave é salva apenas nesta sessão</p>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DE INFORMAÇÃO ===== -->
         <section id="sec-teoria" class="fade-in block">
             <div class="mb-8">
                 <h2 class="text-3xl font-bold text-primary mb-2">Fundamentos da Comunicação de Dados</h2>
@@ -452,34 +482,48 @@
             throw lastErr;
         }
 
+        function openApiModal() { document.getElementById('api-modal').classList.remove('hidden'); document.getElementById('api-modal').classList.add('flex'); }
+        function closeApiModal() { document.getElementById('api-modal').classList.add('hidden'); document.getElementById('api-modal').classList.remove('flex'); }
+        function saveApiKey() { 
+            const key = document.getElementById('input-api-key').value.trim();
+            if (key) { 
+                window.sessionApiKey = key; 
+                sessionStorage.setItem('gemini_key', key);
+                closeApiModal();
+                showModalInfo("Chave salva com sucesso!");
+            }
+        }
+
         async function generateMoreQuestionsAI() {
             const btn = document.getElementById('btn-generate-ai'), loading = document.getElementById('ai-loading');
+            
+            // Verifica se tem a chave, se não tiver, abre o modal e para
+            if (!window.sessionApiKey) {
+                const savedKey = sessionStorage.getItem('gemini_key');
+                if (savedKey) {
+                    window.sessionApiKey = savedKey;
+                } else {
+                    openApiModal();
+                    return;
+                }
+            }
+
             document.getElementById('search-quiz').value = "";
             btn.classList.add('hidden'); loading.classList.remove('hidden'); loading.classList.add('flex');
-            
-            if (!window.sessionApiKey) { 
-                const key = window.prompt("Insira sua API Key do Google Gemini:"); 
-                if (!key || !key.trim()) { 
-                    btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); 
-                    return; 
-                } 
-                window.sessionApiKey = key.trim(); 
-            }
 
             try {
                 // --- Passo 1: Descoberta de Modelos ---
-                let selectedModel = "gemini-1.5-flash"; // Default
+                let selectedModel = "gemini-1.5-flash"; 
                 try {
                     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${window.sessionApiKey}`;
                     const modelData = await fetchWithRetry(listUrl, { method: "GET" });
                     const availableModels = modelData.models || [];
                     const bestModel = availableModels.find(m => m.supportedGenerationMethods.includes("generateContent") && (m.name.includes("flash") || m.name.includes("pro")));
                     if (bestModel) {
-                        // O nome vem como "models/gemini-1.5-flash", pegamos só o final
                         selectedModel = bestModel.name.split('/').pop();
                     }
                 } catch (e) {
-                    if (e.message.includes("403")) throw new Error("Chave de API Inválida ou sem permissão (403 Forbidden). Verifique no AI Studio.");
+                    if (e.message.includes("403")) throw new Error("Chave de API Inválida ou BLOQUEADA pelo Google (Leaked). Crie uma nova no AI Studio.");
                     console.warn("Falha ao listar modelos, tentando padrão...", e);
                 }
 
@@ -499,11 +543,17 @@
                         currentBatchIndex = Math.floor((allQuestionsDB.length - nq.length) / BATCH_SIZE); 
                         renderQuestions(); 
                         showModalInfo(`🎉 Sucesso! Usando modelo ${selectedModel}, geramos ${nq.length} questões.`); 
-                    } else { throw new Error("A IA retornou um formato de texto em vez de JSON."); }
+                    } else { throw new Error("A IA retornou um formato inesperado."); }
                 }
             } catch(e) { 
                 console.error("Erro detalhado:", e); 
                 showModalInfo(`Erro: ${e.message}`); 
+                // Se der erro de permissão, limpa a chave e abre o modal
+                if (e.message.includes("403")) {
+                    window.sessionApiKey = null;
+                    sessionStorage.removeItem('gemini_key');
+                    setTimeout(openApiModal, 2000);
+                }
             }
             finally { 
                 btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); 
