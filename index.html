@@ -457,14 +457,21 @@
             document.getElementById('search-quiz').value = "";
             btn.classList.add('hidden'); loading.classList.remove('hidden'); loading.classList.add('flex');
             if (!window.sessionApiKey) { const key = window.prompt("Insira sua API Key do Google Gemini:"); if (!key || !key.trim()) { showModalInfo("Operação cancelada. API Key necessária."); btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); return; } window.sessionApiKey = key.trim(); }
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.sessionApiKey}`;
-            const aiPrompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados, Sinais Analógicos/Digitais, Frequência, Comprimento de Onda, Largura de Banda, Perdas de Transmissão (atenuação, ruído, distorção, interferência), Redes de Telefonia Celular, Redes de Sensores Sem Fio (WSN), Internet das Coisas (IoT), arquitetura em camadas IoT, Backhaul, e Tecnologias de Comunicação IoT (2.4GHz, NFC, Bluetooth/BLE, Wi-Fi, Zigbee, RFID). Formato: pergunta e resposta direta de uma linha. Seja técnico e aprofundado.";
-            const payload = { contents: [{parts:[{text:aiPrompt}]}], systemInstruction: {parts:[{text:"Você é um professor universitário especialista em Redes de Computadores."}]}, generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { q: {type:"STRING"}, a: {type:"STRING"} } } } } };
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${window.sessionApiKey}`;
+            const aiPrompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados, Sinais Analógicos/Digitais, Frequência, Comprimento de Onda, Largura de Banda, Perdas de Transmissão (atenuação, ruído, distorção, interferência), Redes de Telefonia Celular, Redes de Sensores Sem Fio (WSN), Internet das Coisas (IoT), arquitetura em camadas IoT, Backhaul, e Tecnologias de Comunicação IoT (2.4GHz, NFC, Bluetooth/BLE, Wi-Fi, Zigbee, RFID). Retorne EXCLUSIVAMENTE um array JSON de objetos com as propriedades 'q' (pergunta) e 'a' (resposta direta de uma linha). Não inclua markdown ou explicações.";
+            const payload = { contents: [{parts:[{text:aiPrompt}]}] };
             try {
                 const data = await fetchWithRetry(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-                const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (txt) { const nq = JSON.parse(txt); allQuestionsDB.push(...nq); currentBatchIndex = Math.floor((allQuestionsDB.length - nq.length) / BATCH_SIZE); renderQuestions(); showModalInfo(`🎉 Gemini gerou ${nq.length} novas questões!`); }
-            } catch(e) { console.error("Erro API:",e); showModalInfo("Erro ao gerar questões. Verifique sua API Key."); }
+                let txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (txt) { 
+                    txt = txt.replace(/```json/g, "").replace(/```/g, "").trim();
+                    const nq = JSON.parse(txt); 
+                    allQuestionsDB.push(...nq); 
+                    currentBatchIndex = Math.floor((allQuestionsDB.length - nq.length) / BATCH_SIZE); 
+                    renderQuestions(); 
+                    showModalInfo(`🎉 Gemini gerou ${nq.length} novas questões!`); 
+                }
+            } catch(e) { console.error("Erro API:",e); showModalInfo("Erro ao gerar questões. Verifique se sua chave tem acesso ao Gemini 1.5 Flash."); }
             finally { btn.classList.remove('hidden'); loading.classList.add('hidden'); loading.classList.remove('flex'); document.getElementById('sec-quiz').scrollIntoView({behavior:'smooth'}); }
         }
 
