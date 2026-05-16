@@ -118,8 +118,8 @@
                     <h3 class="text-xl font-semibold mb-4 text-primary border-b pb-2">Analógico vs Digital</h3>
                     <div class="flex flex-col gap-4">
                         <div class="flex items-start gap-4"><div class="text-3xl mt-1 text-secondary">〰️</div><div><strong class="text-lg">Dado/Sinal Analógico</strong><p class="text-sm text-gray-600">Representação contínua. Infinitos valores num intervalo. Sinais eletromagnéticos como ondas de rádio. Ex: Voz humana.</p></div></div>
-                        <div class="flex items-start gap-4"><div class="text-3xl mt-1 text-accent">🔲</div><div><strong class="text-lg">Dado/Sinal Digital</strong><p class="text-sm text-gray-600">Representação discreta (0s e 1s). Pulsos de tensão definidos. Mais imune a ruídos. Ex: Arquivos de computador.</p></div></div>
-                        <div class="mt-2 bg-blue-50 p-3 rounded-lg text-sm border border-blue-100"><strong>Conversões:</strong> Analógico → Digital (ADC/Digitalização) | Digital → Analógico (DAC/Modulação). São 4 combinações possíveis: AA, AD, DA, DD.</div>
+                        <div class="flex items-start gap-4"><div class="text-3xl mt-1 text-accent">🔲</div><div><strong class="text-lg">Dado/Sinal Digital</strong><p class="text-sm text-gray-600">Representação discreta (0 e 1). Pulsos de tensão definidos. Mais imune a ruídos. Ex: Arquivos de computador.</p></div></div>
+                        <div class="mt-2 bg-blue-50 p-3 rounded-lg text-sm border border-blue-100"><strong>Conversões:</strong> Analógico → Digital (ADC/Digitalização) | Digital → Analógico (DAC/Modulação). São 4 combinações possíveis entre dados e sinais (AA, AD, DA, DD).</div>
                     </div>
                 </div>
             </div>
@@ -220,7 +220,7 @@
                         <div class="p-3 bg-purple-50 rounded-lg text-center text-sm"><strong class="text-purple-800">Camada de Transporte</strong><p class="text-xs text-gray-600 mt-1">Entrega confiável dos dados</p></div>
                         <div class="p-3 bg-orange-50 rounded-lg text-center text-sm"><strong class="text-orange-800">Camada de Aplicação</strong><p class="text-xs text-gray-600 mt-1">Serviços e aplicações finais</p></div>
                     </div>
-                    <div class="mt-4 bg-yellow-50 p-3 rounded-lg text-sm border border-yellow-200"><strong>Protocolos WSN Industriais:</strong> São 4 protocolos principais focados em confiabilidade e baixo consumo (ex: WirelessHART, ISA100.11a, ZigBee PRO, 6LoWPAN).</div>
+                    <div class="mt-4 bg-yellow-50 p-3 rounded-lg text-sm border border-yellow-200"><strong>Protocolos WSN Industriais:</strong> WirelessHART, ISA100.11a, ZigBee PRO e 6LoWPAN. Focados em confiabilidade e baixo consumo.</div>
                 </div>
             </div>
 
@@ -269,12 +269,12 @@
                             </ul>
                         </div>
                         <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
-                            <div class="p-3 bg-blue-50 rounded-lg"><strong>Wi-Fi:</strong> Alta taxa, alto consumo. Bandas 2.4 e 5 GHz.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>Wi-Fi (802.11):</strong> Alta taxa, alto consumo. Bandas 2.4 e 5 GHz (variações a, b, g, n, ac, ax).</div>
                             <div class="p-3 bg-blue-50 rounded-lg"><strong>BLE:</strong> Bluetooth Low Energy para sensores de longa duração.</div>
                             <div class="p-3 bg-blue-50 rounded-lg"><strong>Zigbee:</strong> Rede mesh, baixo consumo, automação residencial.</div>
                             <div class="p-3 bg-blue-50 rounded-lg"><strong>RFID:</strong> Tag ativa (bateria) vs passiva (energia do leitor).</div>
                             <div class="p-3 bg-blue-50 rounded-lg"><strong>NFC:</strong> Curtíssimo alcance (~4-10cm). Pagamentos por aproximação.</div>
-                            <div class="p-3 bg-blue-50 rounded-lg"><strong>2.4 GHz:</strong> Banda não licenciada, alta interferência.</div>
+                            <div class="p-3 bg-blue-50 rounded-lg"><strong>2.4 GHz:</strong> Banda não licenciada, alta interferência (BT, Wi-Fi, Micro-ondas).</div>
                         </div>
                     </div>
                 </div>
@@ -300,6 +300,11 @@
                             <label for="amp-slider" class="block text-sm font-medium text-gray-700 mb-1">Amplitude: <span id="amp-val" class="text-accent font-bold text-lg">50</span></label>
                             <input type="range" id="amp-slider" min="10" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent">
                             <p class="text-xs text-gray-500 mt-1">Força ou altura do sinal.</p>
+                        </div>
+                        <div class="mb-6">
+                            <label for="phase-slider" class="block text-sm font-medium text-gray-700 mb-1">Fase (Graus): <span id="phase-val" class="text-purple-600 font-bold text-lg">0</span>°</label>
+                            <input type="range" id="phase-slider" min="0" max="360" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                            <p class="text-xs text-gray-500 mt-1">Deslocamento horizontal no ciclo (0-360°).</p>
                         </div>
                         <div class="p-4 bg-yellow-50 border-l-4 border-accent rounded shadow-sm mt-4">
                             <h4 class="font-bold text-sm text-yellow-800">Regra de Ouro (Prova):</h4>
@@ -381,13 +386,21 @@
         }
         function updateChart() {
             if(!waveChartInstance) return;
-            const f = parseFloat(document.getElementById('freq-slider').value), a = parseFloat(document.getElementById('amp-slider').value);
-            document.getElementById('freq-val').innerText = f; document.getElementById('amp-val').innerText = a;
-            waveChartInstance.data.datasets[0].data = waveChartInstance.data.labels.map(t => a * Math.sin(2 * Math.PI * f * t));
+            const f = parseFloat(document.getElementById('freq-slider').value);
+            const a = parseFloat(document.getElementById('amp-slider').value);
+            const p = parseFloat(document.getElementById('phase-slider').value);
+            const phaseRad = (p * Math.PI) / 180; // Converter graus para radianos
+
+            document.getElementById('freq-val').innerText = f; 
+            document.getElementById('amp-val').innerText = a;
+            document.getElementById('phase-val').innerText = p;
+
+            waveChartInstance.data.datasets[0].data = waveChartInstance.data.labels.map(t => a * Math.sin(2 * Math.PI * f * t + phaseRad));
             waveChartInstance.update();
         }
         document.getElementById('freq-slider').addEventListener('input', updateChart);
         document.getElementById('amp-slider').addEventListener('input', updateChart);
+        document.getElementById('phase-slider').addEventListener('input', updateChart);
 
         // --- 60 Questões ---
         const allQuestionsDB = [
@@ -529,7 +542,22 @@
 
                 // --- Passo 2: Gerar Questões ---
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${window.sessionApiKey}`;
-                const aiPrompt = "Crie 60 novas questões objetivas sobre Comunicação de Dados e IoT. Retorne EXCLUSIVAMENTE um array JSON puro, no formato: [{\"q\": \"pergunta\", \"a\": \"resposta\"}].";
+                const aiPrompt = `Crie 60 novas questões objetivas (pergunta e resposta curta) para um simulado de Redes de Computadores II, focando nos seguintes tópicos:
+1. Comunicação de Dados: Mensagens, Transmissor, Receptor, Protocolos, Sinais Analógicos e Digitais (contínuo vs discreto, conversões A/D e D/A).
+2. Fluxo de Dados: Simplex, Half Duplex, Full Duplex.
+3. Sinais: Periódicos/Não periódicos, Frequência (Hz), Período (T), Onda senoidal, Relação Frequência x Comprimento de onda (inversamente proporcionais), Sinais compostos e Largura de Banda.
+4. Perdas: Atenuação, Interferência, Ruído e Distorção.
+5. Telefonia Celular: Antenas, ERB, Núcleo da rede e Dispositivos móveis.
+6. Redes de Sensores Sem Fio (WSN): Arquitetura em camadas (Enlace, Rede, Transporte, Aplicação) e protocolos industriais (WirelessHART, ISA100.11a, etc).
+7. IoT (Internet das Coisas): Definição, Sensores, Blocos (Identificação, Computação, Serviços), Arquitetura em 3 camadas (Percepção, Rede, Aplicação).
+8. Backhaul: Importância da rede de transporte entre a borda e o núcleo (ênfase em infraestrutura).
+9. Tecnologias de Comunicação: Banda 2.4 GHz (interferência), NFC (13.56MHz), Bluetooth, Zigbee, RFID e Wi-Fi (802.11 e variações).
+
+Instruções:
+- As perguntas devem ser variadas e cobrir todos os pontos acima.
+- O tom deve ser acadêmico e preparatório para prova.
+- Retorne EXCLUSIVAMENTE um array JSON puro, no formato: [{"q": "pergunta", "a": "resposta"}].
+- Não adicione explicações fora do JSON.`;
                 const payload = { contents: [{parts:[{text:aiPrompt}]}] };
                 
                 const data = await fetchWithRetry(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
