@@ -326,7 +326,7 @@
             <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-primary mb-2">Simulado Rápido</h2>
-                    <p class="text-textMuted">Clique na pergunta para revelar a resposta. Use o botão no fim para gerar mais questões com IA.</p>
+                    <p class="text-textMuted">Digite sua resposta e clique em Enviar para verificar com IA. Use o botão no fim para gerar mais questões.</p>
                 </div>
                 <div class="w-full md:w-64">
                     <input type="text" id="search-quiz" placeholder="Buscar palavra-chave..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary transition">
@@ -334,7 +334,7 @@
             </div>
             <div class="flex gap-4 mb-6 text-sm">
                 <div class="bg-blue-50 px-4 py-2 rounded-full border border-blue-200"><span class="font-bold text-primary">Exibindo:</span> <span id="batch-info">1 a 60</span></div>
-                <div class="bg-green-50 px-4 py-2 rounded-full border border-green-200"><span class="font-bold text-green-700">Dica:</span> Use como flashcards</div>
+                <div class="bg-green-50 px-4 py-2 rounded-full border border-green-200"><span class="font-bold text-green-700">Dica:</span> A IA verifica o contexto da sua resposta</div>
             </div>
             <div id="quiz-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             <div class="mt-10 flex flex-col items-center justify-center pb-8">
@@ -480,12 +480,96 @@
             qs.forEach((item, index) => {
                 const di = filter === "" ? (si + index + 1) : (index + 1);
                 const card = document.createElement('div');
-                card.className = "bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group cursor-pointer flex flex-col";
-                card.onclick = function() { const ans = this.querySelector('.answer-block'), icon = this.querySelector('.toggle-icon'); if(ans.classList.contains('hidden')) { ans.classList.remove('hidden'); icon.textContent = "−"; this.classList.add('border-secondary'); } else { ans.classList.add('hidden'); icon.textContent = "+"; this.classList.remove('border-secondary'); } };
-                card.innerHTML = `<div class="p-4 flex justify-between items-start gap-2 bg-gray-50 group-hover:bg-blue-50 transition-colors flex-grow"><h4 class="font-bold text-sm text-gray-800 leading-tight"><span class="text-secondary mr-1">${di}.</span> ${item.q}</h4><span class="toggle-icon text-lg font-bold text-gray-400 group-hover:text-secondary">+</span></div><div class="answer-block hidden p-4 border-t border-gray-100 bg-white"><p class="text-sm font-semibold text-green-700">R: ${item.a}</p></div>`;
+                card.className = "bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col";
+                card.dataset.correct = item.a;
+                card.dataset.question = item.q;
+                
+                card.innerHTML = `
+                    <div class="p-4 flex flex-col gap-3 bg-gray-50 transition-colors flex-grow">
+                        <h4 class="font-bold text-sm text-gray-800 leading-tight"><span class="text-secondary mr-1">${di}.</span> ${item.q}</h4>
+                        <div class="flex gap-2 mt-2">
+                            <input type="text" class="user-answer-input flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-secondary transition" placeholder="Sua resposta..." onkeydown="if(event.key === 'Enter') checkAnswer(this)">
+                            <button class="bg-secondary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-600 transition shadow-sm" onclick="checkAnswer(this)">Enviar</button>
+                        </div>
+                    </div>
+                    <div class="answer-block hidden p-4 border-t border-gray-100 bg-white">
+                        <div class="feedback-msg text-sm font-bold mb-2"></div>
+                        <p class="text-sm font-semibold text-gray-700"><span class="text-blue-600 font-bold">Gabarito:</span> ${item.a}</p>
+                    </div>
+                `;
                 container.appendChild(card);
             });
             if(qs.length === 0) container.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500">Nenhuma questão encontrada para "${filter}".</div>`;
+        }
+
+        async function checkAnswer(element) {
+            const card = element.closest('.bg-white');
+            const input = card.querySelector('.user-answer-input');
+            const answerBlock = card.querySelector('.answer-block');
+            const feedbackMsg = card.querySelector('.feedback-msg');
+            const btn = card.querySelector('button');
+            
+            const userAns = input.value.trim();
+            if (!userAns) return; 
+            
+            const correctAns = card.dataset.correct;
+            const questionText = card.dataset.question;
+            
+            answerBlock.classList.remove('hidden');
+            feedbackMsg.innerHTML = '<span class="text-secondary animate-pulse">Verificando resposta...</span>';
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let isCorrect = false;
+            let aiFeedback = "";
+
+            try {
+                const key = window.sessionApiKey || sessionStorage.getItem('gemini_key');
+                if (key) {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${key}`;
+                    const prompt = `Avalie a resposta do usuário para a seguinte pergunta de Redes de Computadores.\nPergunta: "${questionText}"\nGabarito: "${correctAns}"\nResposta do Usuário: "${userAns}"\nA resposta do usuário está correta quanto ao conceito e leva em conta a pergunta? Responda com um JSON estrito: {"correta": true/false, "explicacao": "breve explicacao do porquê"}`;
+                    
+                    const r = await fetch(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ contents: [{parts:[{text:prompt}]}] }) });
+                    if(r.ok) {
+                        const data = await r.json();
+                        const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                        const match = txt.match(/\{[\s\S]*\}/);
+                        if(match) {
+                            const res = JSON.parse(match[0]);
+                            isCorrect = res.correta;
+                            aiFeedback = res.explicacao;
+                        } else { throw new Error("Format"); }
+                    } else { throw new Error("API Error"); }
+                } else {
+                    throw new Error("No API Key");
+                }
+            } catch(e) {
+                const normalize = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, "");
+                const u = normalize(userAns);
+                const c = normalize(correctAns);
+                const uWords = u.split(/\s+/).filter(w => w.length > 2);
+                const cWords = c.split(/\s+/).filter(w => w.length > 2);
+                if (cWords.length === 0) isCorrect = (u === c);
+                else {
+                    let matchCount = 0;
+                    cWords.forEach(cw => { if (uWords.some(uw => uw.includes(cw) || cw.includes(uw))) matchCount++; });
+                    isCorrect = (matchCount / cWords.length >= 0.4) || uWords.some(uw => c.includes(uw) && uw.length > 4);
+                }
+                aiFeedback = isCorrect ? "Verificação offline: A resposta contém palavras-chave adequadas." : "Verificação offline: A resposta difere do gabarito esperado.";
+            }
+
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            if (isCorrect) {
+                feedbackMsg.innerHTML = `✅ <span class="text-green-600">Correto!</span> <span class="text-xs text-gray-600 block mt-1">${aiFeedback}</span>`;
+                card.classList.add('border-green-400');
+                card.classList.remove('border-red-400', 'border-gray-200');
+            } else {
+                feedbackMsg.innerHTML = `❌ <span class="text-red-600">Incorreto.</span> <span class="text-xs text-gray-600 block mt-1">${aiFeedback}</span>`;
+                card.classList.add('border-red-400');
+                card.classList.remove('border-green-400', 'border-gray-200');
+            }
         }
 
         // --- Gemini API ---
@@ -526,7 +610,7 @@
 
             try {
                 // --- Passo 1: Descoberta de Modelos ---
-                let selectedModel = "gemini-1.5-flash"; 
+                let selectedModel = "gemini-flash-latest"; 
                 try {
                     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${window.sessionApiKey}`;
                     const modelData = await fetchWithRetry(listUrl, { method: "GET" });
